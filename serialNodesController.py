@@ -60,13 +60,13 @@ class SerialNodesController(object):
                                                   iQOS=0,
                                                   bRetain=False)
             elif int(RecMsg.Function)==4:
-                # LDR garage
+                # LDR Garage zolder
                 if int(RecMsg.MsgValue) > self._LDRLightStateValue:
-                    self._NodeControl.MQTTPublish(sTopic="werkkamer/ldrevent", sValue="ON",
+                    self._NodeControl.MQTTPublish(sTopic="garagezolder/ldrevent", sValue="ON",
                                                   iQOS=0,
                                                   bRetain=False)
                 elif int(RecMsg.MsgValue) < self._LDRLightStateValue:
-                    self._NodeControl.MQTTPublish(sTopic="werkkamer/ldrevent", sValue="OFF",
+                    self._NodeControl.MQTTPublish(sTopic="garagezolder/ldrevent", sValue="OFF",
                                                   iQOS=0,
                                                   bRetain=False)
 

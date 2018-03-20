@@ -31,7 +31,7 @@ class AirQuality(object):
             self._BME680Sensor.select_gas_heater_profile(0)
 
             if self._NodeControl.nodeProps.has_option('sensors','burninValue'):
-                self._gas_baseline = self._NodeControl.nodeProps.get('sensors','burninValue')
+                self._gas_baseline = self._NodeControl.nodeProps.getfloat('sensors','burninValue')
             else:
                 self._gas_baseline = self.doSensorBurnIn()
                 NodeControl.log.info("Sensor burn in value: %s" % self._gas_baseline)
@@ -72,21 +72,21 @@ class AirQuality(object):
             NodeControl.log.debug("Sensor Status update")
             try:
                 if self._BME680Sensor.get_sensor_data():
-                    Temp = '{:.1f}'.format(self._BME680Sensor.data.read_temperature)
+                    Temp = '{:.1f}'.format(self._BME680Sensor.data.temperature)
                     Hum = '{:.1f}'.format(self._BME680Sensor.data.humidity)
-                    rawPress = self._BME680Sensor.data.read_sealevel_pressure(altitude_m=STATIONELEVATION)
+                    rawPress = self._BME680Sensor.data.pressure # read_sealevel_pressure(altitude_m=STATIONELEVATION)
                     rawPresNum = int(rawPress)
-                    combinedPress = "{0}.{1}".format(rawPresNum / 100, rawPresNum % 100)
-                    formattedPress = '{:.1f}'.format(float(combinedPress))
+                    # combinedPress = "{0}.{1}".format(rawPresNum / 100, rawPresNum % 100)
+                    formattedPress = '{:.1f}'.format(float(rawPresNum))
 
                     NodeControl.MQTTPublish(sTopic="garage/temp", sValue=str(Temp), iQOS=0, bRetain=False)
                     NodeControl.MQTTPublish(sTopic="garage/luchtdruk", sValue=str(formattedPress), iQOS=0, bRetain=True)
                     NodeControl.MQTTPublish(sTopic="garage/hum", sValue=str(Hum), iQOS=0, bRetain=False)
                     if self._BME680Sensor.data.heat_stable:
-                        gas = self._BME680Sensor.data.data.gas_resistance
+                        gas = self._BME680Sensor.data.gas_resistance
                         gas_offset = self._gas_baseline - gas
 
-                        hum = self._BME680Sensor.data.data.humidity
+                        hum = self._BME680Sensor.data.humidity
                         hum_offset = hum - self._hum_baseline
 
                         # Calculate hum_score as the distance from the hum_baseline.
