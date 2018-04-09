@@ -1,0 +1,13 @@
+[Unit]
+Description=Bliknet Garage App
+After=network-online.target
+
+[Service]
+Type=simple
+User=%i
+Restart=on-failure
+WorkingDirectory=/opt/bliknet/garage/app/
+ExecStart=/opt/bliknet/garage/virtualenv/bin/python /opt/bliknet/garage/app/BliknetNode.py
+
+[Install]
+WantedBy=multi-user.target

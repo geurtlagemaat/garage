@@ -2,6 +2,7 @@
 import traceback
 import bme680
 import time
+from twisted.internet import task
 
 STATIONELEVATION=8.7
 
@@ -30,17 +31,23 @@ class AirQuality(object):
             self._BME680Sensor.set_gas_heater_duration(150)
             self._BME680Sensor.select_gas_heater_profile(0)
 
-            if self._NodeControl.nodeProps.has_option('sensors','burninValue'):
+            self._BurnInMode = True
+            self._start_time = time.time()
+            self._burn_in_data = []
+            l = task.LoopingCall(self.doSensorBurnInUpdate)
+            l.start(1)
+
+            """if self._NodeControl.nodeProps.has_option('sensors','burninValue'):
                 self._gas_baseline = self._NodeControl.nodeProps.getfloat('sensors','burninValue')
-            else:
-                self._gas_baseline = self.doSensorBurnIn()
-                NodeControl.log.info("Sensor burn in value: %s" % self._gas_baseline)
-                try:
-                    self._NodeControl.nodeProps.set('sensors', 'burninValue', self._gas_baseline)
-                    with open(self._NodeControl.propertiesFile, 'wb') as configfile:
-                        self._NodeControl.nodeProps.write(configfile)
-                except Exception, exp:
-                    NodeControl.log.warning("Error writing burnin value %s, error: %s." % (self._gas_baseline, traceback.format_exc()))
+            else: """
+            self._gas_baseline = self.doSensorBurnIn()
+            NodeControl.log.info("Sensor burn in value: %s" % self._gas_baseline)
+            try:
+                self._NodeControl.nodeProps.set('sensors', 'burninValue', self._gas_baseline)
+                # with open(self._NodeControl.propertiesFile, 'wb') as configfile:
+                #    self._NodeControl.nodeProps.write(configfile)
+            except Exception, exp:
+                NodeControl.log.warning("Error writing burnin value %s, error: %s." % (self._gas_baseline, traceback.format_exc()))
             # Set the humidity baseline to 40%, an optimal indoor humidity. # TODO to properties
             self._hum_baseline = 40.0
             # This sets the balance between humidity and gas reading in the
@@ -48,6 +55,12 @@ class AirQuality(object):
             self._hum_weighting = 0.25
         except Exception, exp:
             NodeControl.log.warning("Error BME680 init, error: %s." % (traceback.format_exc()))
+
+    def doSensorBurnInUpdate(self):
+        if self._BME680Sensor.get_sensor_data() and self._BME680Sensor.data.heat_stable:
+            gas = self._BME680Sensor.data.gas_resistance
+            self._burn_in_data.append(gas)
+
 
     def doSensorBurnIn(self):
         """Collect gas resistance burn-in values, then use the average
