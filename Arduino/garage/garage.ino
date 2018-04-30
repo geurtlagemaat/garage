@@ -302,19 +302,21 @@ delay(1000);
     SendMessage();
   }
   lastLDR1Value = iCurrLDRValue;
+  
   iCurrLDRValue = analogRead(ldr2Pin);
-  if ((lastLDR2Value) < (iCurrLDRValue-deltaLDR)){
+  // if ((lastLDR2Value) < (iCurrLDRValue-deltaLDR)){
+  if ((iCurrLDRValue) < (lastLDR2Value-deltaLDR)){
     // state change: much less light
     message[7] = 0x06;  // QOS: fire once and forget
     message[8] = 0x30;
-    message[9] = 0x34;  // LDR = func 03
+    message[9] = 0x34;  // LDR = func 04
     ValueToMessage(iCurrLDRValue);
     SendMessage();
   }else if (iCurrLDRValue > (lastLDR2Value+deltaLDR)){
     // state change: much more light
     message[7] = 0x06;  // QOS: fire once and forget
     message[8] = 0x30;
-    message[9] = 0x34;  // LDR = func 03
+    message[9] = 0x34;  // LDR = func 04
     ValueToMessage(iCurrLDRValue);
     SendMessage();
   }
