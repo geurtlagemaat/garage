@@ -48,7 +48,7 @@ class SerialNodesController(object):
                     self._NodeControl.MQTTPublish(sTopic="werkkamer/pirevent", sValue="ON",
                                                   iQOS=0,
                                                   bRetain=False)
-                    reactor.callLater(self._ResetState, self.ResetState, topic="werkkamer/pirevent")
+                    reactor.callLater(self._ResetState, self.ResetPIR2State, topic="werkkamer/pirevent")
             elif int(RecMsg.Function)==3:
                 # LDR garage
                 if int(RecMsg.MsgValue) > self._LDRLightStateValue:
