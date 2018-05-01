@@ -1,0 +1,5 @@
+Geel(5v) / Paars --> LDR
+Rood  - BME680 5v
+Groen - BME680 SDA
+Bruin - BME680 SCL
+Blauw - BME680 GND
